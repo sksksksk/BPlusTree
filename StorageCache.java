@@ -236,6 +236,7 @@ public class StorageCache {
 	private void aquireNodeStorage(BTreeNode node) {
 		int dataPageIndex = 0;
 		// open file, get length, and calculate the  dataPageIndex that corresponds to the next data page at the end of the file
+		// Actually write DATA_PAGE_LENGTH bytes to the end file, so for that subsequent new nodes the new length is used 
 		node.setStorageDataPage(dataPageIndex);
 	}
 	
