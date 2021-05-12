@@ -15,6 +15,7 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 
 	public void setValue(int index, TValue value) {
 		this.values[index] = value;
+		setDirty(); // we changed a value, so this node is dirty and must be flushed to disk
 	}
 	
 	@Override
@@ -57,6 +58,7 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 		// insert new key and value
 		this.setKey(index, key);
 		this.setValue(index, value);
+		// setDirty() will be called in setKey/setValue
 		++this.keyCount;
 	}
 	
@@ -77,7 +79,8 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 		}
 		newRNode.keyCount = this.getKeyCount() - midIndex;
 		this.keyCount = midIndex;
-		
+		setDirty();// just to make sure
+
 		return newRNode;
 	}
 	
@@ -109,6 +112,8 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 		this.setKey(i, null);
 		this.setValue(i, null);
 		--this.keyCount;
+		
+		// setDirty will be called through setKey/setValue
 	}
 	
 	@Override
@@ -148,7 +153,32 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 		
 		this.insertKey(siblingNode.getKey(borrowIndex), siblingNode.getValue(borrowIndex));
 		siblingNode.deleteAt(borrowIndex);
-		
+		// setDirty will be called through setKey/setValue in deleteAt
 		return borrowIndex == 0 ? sibling.getKey(0) : this.getKey(0);
+	}
+	
+	protected byte[] toByteArray() {
+		// very similar to BTreeInnerNode. Instead of pointers to children (offset to our data pages in our node file), we have pointers
+		// to data (byte offset to our data file)
+
+		// .....
+		// .....
+		byte[] byteArray = new byte[100]; // 100: demo size of our data page. This should be some constant
+		// ..... do stuff
+		// ..... do stuff
+		return byteArray;
+		
+	}
+	protected BTreeLeafNode<TKey, TValue> fromByteArray(byte[] byteArray, int dataPageOffset) {
+		// this takes a byte array of fixed size, and transforms it to a BTreeLeafNode
+		// it takes the format we store our node (as specified in toByteArray()) and constructs the BTreeLeafNode
+		// We need as parameter the dataPageOffset in order to set it
+		BTreeLeafNode<TKey, TValue> result = new BTreeLeafNode<TKey, TValue>();
+		result.setStorageDataPage(dataPageOffset);
+		
+		// ..... do stuff
+		// ..... do stuff
+		
+		return result;
 	}
 }

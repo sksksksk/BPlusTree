@@ -1,22 +1,35 @@
 
 class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 	protected final static int INNERORDER = 4;
-	protected Object[] children; 
+	// protected Object[] children; 
+	// CHANGE FOR STORING ON FILE
+	protected Integer[] children;
 	
 	public BTreeInnerNode() {
 		this.keys = new Object[INNERORDER + 1];
-		this.children = new Object[INNERORDER + 2];
+		//this.children = new Object[INNERORDER + 2];
+		// CHANGE FOR STORING ON FILE
+		this.children = new Integer[INNERORDER + 2];
 	}
 	
 	@SuppressWarnings("unchecked")
 	public BTreeNode<TKey> getChild(int index) {
-		return (BTreeNode<TKey>)this.children[index];
+//		return (BTreeNode<TKey>)this.children[index];
+		// CHANGE FOR STORING ON FILE
+		return (BTreeNode<TKey>)StorageCache.getInstance().retrieveNode(this.children[index]);
 	}
 
 	public void setChild(int index, BTreeNode<TKey> child) {
-		this.children[index] = child;
+//		this.children[index] = child;
+		// CHANGE FOR STORING ON FILE
+		this.children[index] = child.getStorageDataPage();
+		
 		if (child != null)
 			child.setParent(this);
+
+		
+		
+		setDirty();
 	}
 	
 	@Override
@@ -57,6 +70,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 		this.setChild(index, leftChild);
 		this.setChild(index + 1, rightChild);
 		this.keyCount += 1;
+		
 	}
 	
 	/**
@@ -79,7 +93,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 		this.setKey(midIndex, null);
 		newRNode.keyCount = this.getKeyCount() - midIndex - 1;
 		this.keyCount = midIndex;
-		
+		setDirty();
 		return newRNode;
 	}
 	
@@ -114,6 +128,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 		this.setKey(i, null);
 		this.setChild(i + 1, null);
 		--this.keyCount;
+		setDirty();
 	}
 	
 	
@@ -209,7 +224,42 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 			upKey = siblingNode.getKey(borrowIndex);
 			siblingNode.deleteAt(borrowIndex);
 		}
-		
+		setDirty();
 		return upKey;
+	}
+	
+	protected byte[] toByteArray() {
+		
+		// must include the index of the data page to the left sibling (int == 4 bytes), to the right sibling,
+		// to the parent node, the number of keys (keyCount), the type of node (inner node/leaf node) and the list of keys and list of children (each key 4 byte int, each children 4 byte int pointing to the a data page offeset)
+		// We do not need the isDirty flag and the storageDataPage
+		// so we need
+		// 4 bytes for marking this as a inner node (e.g. an int with value = 1 for inner node and 2 for leaf node)
+		// 4 bytes for left sibling
+		// 4 bytes for right sibling
+		// 4 bytes for parent
+		// 4 bytes for the number of keys
+		// The rest in our data page are for the list of pointers to children, and the keys. Depending on the size of our data page
+		// we can calculate the order our tree
+
+		// .....
+		// .....
+		byte[] byteArray = new byte[100]; // 100: demo size of our data page. This should be some constant
+		// ..... do stuff
+		// ..... do stuff
+		return byteArray;
+		
+	}
+	protected BTreeInnerNode<TKey> fromByteArray(byte[] byteArray, int dataPageOffset) {
+		// this takes a byte array of fixed size, and transforms it to a BTreeInnerNode
+		// it takes the format we store our node (as specified in BTreeInnerNode.toByteArray()) and constructs the BTreeInnerNode
+		// We need as parameter the dataPageOffset in order to set it
+		BTreeInnerNode<TKey> result = new BTreeInnerNode<TKey>();
+		result.setStorageDataPage(dataPageOffset);
+		
+		// ..... do stuff
+		// ..... do stuff
+		
+		return result;
 	}
 }

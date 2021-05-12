@@ -6,24 +6,38 @@
  * @param <TValue> the data type of the value
  */
 public class BTree<TKey extends Comparable<TKey>, TValue> {
-	private BTreeNode<TKey> root;
+	//private BTreeNode<TKey> root;
+	// CHANGE FOR STORING ON FILE 
+	private int root;
+	
+	private int nextFreeDatafileByteOffset = 0; // for this assignment, we only create new, empty files. We keep here the next free byteoffset in our file
 	
 	public BTree() {
-		this.root = new BTreeLeafNode<TKey, TValue>();
+		//this.root = new BTreeLeafNode<TKey, TValue>();
+		// CHANGE FOR STORING ON FILE 
+		this.root = StorageCache.getInstance().newLeafNode().getStorageDataPage();
 	}
 
 	/**
 	 * Insert a new key and its associated value into the B+ tree.
 	 */
 	public void insert(TKey key, TValue value) {
+		// CHANGE FOR STORING ON FILE
+		nextFreeDatafileByteOffset = StorageCache.getInstance().newData((Data)value, nextFreeDatafileByteOffset);
+		
+		// CHANGE FOR STORING ON FILE 
 		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
 		leaf.insertKey(key, value);
 		
 		if (leaf.isOverflow()) {
 			BTreeNode<TKey> n = leaf.dealOverflow();
 			if (n != null)
-				this.root = n; 
+				// CHANGE FOR STORING ON FILE 
+				this.root = n.getStorageDataPage(); 
 		}
+		
+		// CHANGE FOR STORING ON FILE
+		StorageCache.getInstance().flush();
 	}
 	
 	/**
@@ -45,8 +59,11 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 		if (leaf.delete(key) && leaf.isUnderflow()) {
 			BTreeNode<TKey> n = leaf.dealUnderflow();
 			if (n != null)
-				this.root = n; 
+				// CHANGE FOR STORING ON FILE 
+				this.root = n.getStorageDataPage(); 
 		}
+		// CHANGE FOR STORING ON FILE
+		StorageCache.getInstance().flush();
 	}
 	
 	/**
@@ -54,7 +71,10 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 	 */
 	@SuppressWarnings("unchecked")
 	private BTreeLeafNode<TKey, TValue> findLeafNodeShouldContainKey(TKey key) {
-		BTreeNode<TKey> node = this.root;
+		// BTreeNode<TKey> node = this.root;
+		// CHANGE FOR STORING ON FILE
+		BTreeNode<TKey> node = StorageCache.getInstance().retrieveNode(this.root);
+		
 		while (node.getNodeType() == TreeNodeType.InnerNode) {
 			node = ((BTreeInnerNode<TKey>)node).getChild( node.search(key) );
 		}

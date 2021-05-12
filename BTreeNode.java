@@ -7,9 +7,16 @@ enum TreeNodeType {
 abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	protected Object[] keys;
 	protected int keyCount;
-	protected BTreeNode<TKey> parentNode;
-	protected BTreeNode<TKey> leftSibling;
-	protected BTreeNode<TKey> rightSibling;
+	//protected BTreeNode<TKey> parentNode;
+	//protected BTreeNode<TKey> leftSibling;
+	//protected BTreeNode<TKey> rightSibling;
+	// CHANGE FOR STORING ON FILE
+	protected Integer parentNode;
+	protected Integer leftSibling;
+	protected Integer rightSibling;	
+	
+	private boolean dirty;
+	private int storageDataPage; // this node is stored at data page storageDataPage in the node file
 	
 
 	protected BTreeNode() {
@@ -17,8 +24,25 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 		this.parentNode = null;
 		this.leftSibling = null;
 		this.rightSibling = null;
+		
+		this.dirty = false;
+		this.storageDataPage = -1;
 	}
 
+	public void setStorageDataPage(int storageDataPage) {
+		this.storageDataPage = storageDataPage;
+	}
+	public int getStorageDataPage() {
+		return this.storageDataPage;
+	}
+	
+	public boolean isDirty() {
+		return this.dirty;
+	}
+	public void setDirty() {
+		this.dirty = true;
+	}
+	
 	public int getKeyCount() {
 		return this.keyCount;
 	}
@@ -29,15 +53,23 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	}
 
 	public void setKey(int index, TKey key) {
+		setDirty(); // we changed a key, so this node is dirty and must be flushed to disk
 		this.keys[index] = key;
+		setDirty();
 	}
 
 	public BTreeNode<TKey> getParent() {
-		return this.parentNode;
+		//return this.parentNode;
+		// CHANGE FOR STORING ON FILE
+		return StorageCache.getInstance().retrieveNode(this.parentNode);
 	}
 
 	public void setParent(BTreeNode<TKey> parent) {
-		this.parentNode = parent;
+		setDirty(); // we changed the parent, so this node is dirty and must be flushed to disk
+		//this.parentNode = parent;
+		
+		// CHANGE FOR STORING ON FILE
+		this.parentNode = parent.getStorageDataPage();
 	}	
 	
 	public abstract TreeNodeType getNodeType();
@@ -107,6 +139,7 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 
 	public void setLeftSibling(BTreeNode<TKey> sibling) {
 		this.leftSibling = sibling;
+		setDirty(); // we changed a sibling, so this node is dirty and must be flushed to disk
 	}
 
 	public BTreeNode<TKey> getRightSibling() {
@@ -116,7 +149,11 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	}
 
 	public void setRightSibling(BTreeNode<TKey> silbling) {
-		this.rightSibling = silbling;
+		//this.rightSibling = silbling;
+		// CHANGE FOR STORING ON FILE
+		this.rightSibling = silbling.getStorageDataPage();
+		setDirty(); // we changed a sibling, so this node is dirty and must be flushed to disk
+
 	}
 	
 	public BTreeNode<TKey> dealUnderflow() {
@@ -152,4 +189,10 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	protected abstract void fusionWithSibling(TKey sinkKey, BTreeNode<TKey> rightSibling);
 	
 	protected abstract TKey transferFromSibling(TKey sinkKey, BTreeNode<TKey> sibling, int borrowIndex);
+	
+	/* transforms this node to array of bytes, of length data page length */
+	protected abstract byte[] toByteArray();
+	
+	/* converts given array bytes of fixed length of our data page to a Node */
+	protected abstract BTreeNode<TKey> fromByteArray(byte[] byteArray, int dataPageOffset);
 }
