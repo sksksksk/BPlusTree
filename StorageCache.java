@@ -1,7 +1,8 @@
 import java.util.HashMap;
 
 /**
- * Basic singleton handling retrieving and storing BTree Nodes to node file and Data to data file
+ * Basic singleton handling retrieving and storing BTree Nodes to node file and Data to data file.
+ * THIS WILL NOT WORK FOR TREES THAT STORE MULTIPLE VALUES FOR THE SAME KEY!!!
  * @author sk
  *
  */
