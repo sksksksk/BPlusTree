@@ -41,5 +41,5 @@ We add a "dirty" flag to each node, that tells us that this node has been change
 
 Each of our nodes and data classes, will know at which position in our node file or data file it is stored. So we can write it to disk in case it is dirty.
 
-**This branch is incomplete. It does not compile. Look for comments "CHANGE FOR STORING ON FILE" to see the kind of changes needed to complete the code**. Compare with branch PLH201 under https://github.com/sksksksk/BPlusTree/compare/PLH201...sksksksk:PLH201_File_Store
+**This branch is incomplete. It does not compile. Look for comments "CHANGE FOR STORING ON FILE" to see the kind of changes needed to complete the code**. Compare with branch master under https://github.com/sksksksk/BPlusTree/compare/master...sksksksk:PLH201_File_Store
  
