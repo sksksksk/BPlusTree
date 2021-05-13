@@ -55,7 +55,6 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	public void setKey(int index, TKey key) {
 		setDirty(); // we changed a key, so this node is dirty and must be flushed to disk
 		this.keys[index] = key;
-		setDirty();
 	}
 
 	public BTreeNode<TKey> getParent() {
