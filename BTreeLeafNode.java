@@ -1,7 +1,9 @@
 
 class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKey> {
 	protected final static int LEAFORDER = 4;
-	private Object[] values;
+	// private Object[] values;
+	// CHANGE FOR STORING ON FILE
+	private Integer[] values; // integers pointing to byte offset in data file
 	
 	public BTreeLeafNode() {
 		this.keys = new Object[LEAFORDER + 1];
