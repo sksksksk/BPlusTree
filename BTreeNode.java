@@ -16,7 +16,7 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	protected Integer rightSibling;	
 	
 	private boolean dirty;
-	private int storageDataPage; // this node is stored at data page storageDataPage in the node file
+	private int storageDataPage; // this node is stored at data page storageDataPage in the node/index file
 	
 
 	protected BTreeNode() {

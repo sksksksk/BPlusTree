@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
 /**
- * Basic singleton handling retrieving and storing BTree Nodes to node file and Data to data file.
+ * Basic singleton handling retrieving and storing BTree Nodes to node/index file and Data to data file.
  * @author sk
  *
  */
@@ -70,7 +70,7 @@ public class StorageCache {
 				// ......
 				// ......
 				// ......
-				// store byteArray to node file at byte position dataPageIndex * DATA_PAGE_SIZE
+				// store byteArray to node/index file at byte position dataPageIndex * DATA_PAGE_SIZE
 				
 				// ******************************
 				// we just wrote a data page to our file. This is a good location to increase our counter!!!!!
@@ -136,7 +136,7 @@ public class StorageCache {
 		}
 		
 		
-		// open our node file
+		// open our node/index file
 		
 		// seek to position DATA_PAGE_SIZE * dataPageIndex
 		
@@ -230,7 +230,7 @@ public class StorageCache {
 		return result;
 	}
 	
-	// opens our node file, calculates the dataPageIndex that corresponds to the end of the file (raf.length()) 
+	// opens our node/index file, calculates the dataPageIndex that corresponds to the end of the file (raf.length()) 
 	// and sets it on given node
 	private void aquireNodeStorage(BTreeNode node) {
 		int dataPageIndex = 0;
