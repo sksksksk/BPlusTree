@@ -1,4 +1,5 @@
 /**
+ * Original at https://github.com/linli2016/BPlusTree 
  * A B+ tree
  * Since the structures and behaviors between internal node and external node are different, 
  * so there are two different classes for each kind of node.
