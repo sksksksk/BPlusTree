@@ -6,16 +6,16 @@
  * @param <TValue> the data type of the value
  */
 public class BTree<TKey extends Comparable<TKey>, TValue> {
-	//private BTreeNode<TKey> root;
-	// CHANGE FOR STORING ON FILE 
-	private int root;
+	private BTreeNode<TKey> root;
+		
 	
 	private int nextFreeDatafileByteOffset = 0; // for this assignment, we only create new, empty files. We keep here the next free byteoffset in our file
 	
 	public BTree() {
-		//this.root = new BTreeLeafNode<TKey, TValue>();
+		// this.root = new BTreeLeafNode<TKey, TValue>();
 		// CHANGE FOR STORING ON FILE 
-		this.root = StorageCache.getInstance().newLeafNode().getStorageDataPage();
+		this.root = StorageCache.getInstance().newLeafNode();
+		StorageCache.getInstance().flush();
 	}
 
 	/**
@@ -32,8 +32,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 		if (leaf.isOverflow()) {
 			BTreeNode<TKey> n = leaf.dealOverflow();
 			if (n != null)
-				// CHANGE FOR STORING ON FILE 
-				this.root = n.getStorageDataPage(); 
+				this.root = n; 
 		}
 		
 		// CHANGE FOR STORING ON FILE
@@ -59,8 +58,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 		if (leaf.delete(key) && leaf.isUnderflow()) {
 			BTreeNode<TKey> n = leaf.dealUnderflow();
 			if (n != null)
-				// CHANGE FOR STORING ON FILE 
-				this.root = n.getStorageDataPage(); 
+				this.root = n; 
 		}
 		// CHANGE FOR STORING ON FILE
 		StorageCache.getInstance().flush();
@@ -71,9 +69,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 	 */
 	@SuppressWarnings("unchecked")
 	private BTreeLeafNode<TKey, TValue> findLeafNodeShouldContainKey(TKey key) {
-		// BTreeNode<TKey> node = this.root;
-		// CHANGE FOR STORING ON FILE
-		BTreeNode<TKey> node = StorageCache.getInstance().retrieveNode(this.root);
+		BTreeNode<TKey> node = this.root;
 		
 		while (node.getNodeType() == TreeNodeType.InnerNode) {
 			node = ((BTreeInnerNode<TKey>)node).getChild( node.search(key) );

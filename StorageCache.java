@@ -2,7 +2,6 @@ import java.util.HashMap;
 
 /**
  * Basic singleton handling retrieving and storing BTree Nodes to node file and Data to data file.
- * THIS WILL NOT WORK FOR TREES THAT STORE MULTIPLE VALUES FOR THE SAME KEY!!!
  * @author sk
  *
  */
@@ -126,7 +125,7 @@ public class StorageCache {
 		// OPTIONAL, not important for this assignment
 		// during a range search, we will potentially retrieve a large set of nodes, despite we will use them only once
 		// We can optionally add here a case where "large" number of cached, NOT DIRTY (!) nodes, are removed from memory
-		if (StorageCache.retrievedNodes != null && StorageCache.retrievedNodes.keySet().size() > 100) { // we do not want to have more than 100 nodes in cache
+		if (StorageCache.retrievedNodes != null && StorageCache.retrievedNodes.keySet().size() > 200) { // we do not want to have more than 100 nodes in cache
 			BTreeNode node;
 			for ( Object key : StorageCache.retrievedNodes.keySet() ) {
 				node = (BTreeNode)StorageCache.retrievedNodes.get(dataPageIndex);
